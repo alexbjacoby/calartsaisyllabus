@@ -1,277 +1,430 @@
-
 import React, { useState } from 'react';
 
+/**
+ * AISyllabusStatementBuilder
+ *
+ * This component includes ALL of the language from the provided worksheet,
+ * organized as multiple choice or checkbox sets. Users can select bullet points
+ * from each category, and the code will compile them into a single “draft statement.”
+ *
+ * Feel free to modify or remove categories as needed. Right now, each bullet point
+ * is stored in a corresponding array. “Radio” options mean the user can select only
+ * one at a time; “checkbox” options mean multiple selections are possible.
+ *
+ * NO CSS files or external libraries are used here, other than React.
+ */
 function AISyllabusStatementBuilder() {
-const [selections, setSelections] = useState({
-generalPolicy: "",
-tools: [],
-conditions: [],
-processes: [],
-rationale: "",
-consequences: "",
-support: "",
-positionStatement: "",
-});
+  const [selections, setSelections] = useState({
+    // We'll store each set of user choices separately
+    generalPolicy: "",
+    appliedTools: [],
+    conditions: [],
+    processes: [],
+    rationale: "",
+    consequences: "",
+    support: "",
+    positionStatement: "",
+  });
 
-const generalPolicyOptions = [
-"Students are allowed to use AI tools freely as they choose.",
-"Students are only allowed to use AI tools in the limited ways described below.",
-"Students are not allowed to use AI tools, except when certain conditions are met as described below.",
-"Students are never allowed to use AI tools.",
-];
+  /**
+   * CATEGORY 1: "General policy about AI use in this course"
+   * Each bullet is presented as a “radio button,” meaning one choice only.
+   */
+  const generalPolicyOptions = [
+    "Students are allowed to use AI tools freely as they choose.",
+    "Students are only allowed to use AI tools in the limited ways described below.",
+    "Students are not allowed to use AI tools, except when certain conditions are met as described below.",
+    "Students are never allowed to use AI tools",
+    "Other:", // If needed, user might want to type in or expand
+  ];
 
-const toolsOptions = [
-"AI chatbots (e.g., ChatGPT, Google Gemini, Claude, CoPilot).",
-"AI image generators (e.g., DALL-E, Midjourney, Stable Diffusion).",
-"AI code generators (e.g., CoPilot, Tabnine, Cody).",
-"AI audio or music generators (e.g., Amper, AIVA, Soundful).",
-];
+  /**
+   * CATEGORY 2: "The policy applies to the following AI tools"
+   * Typically a multi-select (checkbox) list.
+   */
+  const appliedToolsOptions = [
+    "AI chatbots (such as ChatGPT, Google Gemini, Claude, CoPilot)",
+    "AI image generators (such as DALL-E, Midjourney, Stable Diffusion, Adobe Firefly)",
+    "AI code generators (such as CoPilot, Tabnine, Cody)",
+    "AI audio or music generators (such as Amper, AIVA, Soundful)",
+    "Specific tools:" // Could be used for listing a specific tool name
+  ];
 
-const conditionsOptions = [
-"Only for specified assignments.",
-"Only with proper citations and acknowledgment.",
-"Only under supervision during class.",
-"Only by request and with instructor approval.",
-"Only for reflection, studying, and ideation.",
-];
+  /**
+   * CATEGORY 3: "The policy applies only under the following conditions"
+   * Another multi-select list.
+   */
+  const conditionsOptions = [
+    "Only for specified assignments",
+    "Only with proper citations and acknowledgment",
+    "Only with supervision during class, section, or office hours",
+    "Only after students have gained skills for using chatbots effectively",
+    "Only by request and with the approval of the instructor or teaching team",
+    "Only with your data. Do not enter private, sensitive, or copyrighted data from this course or others into AI tools without their consent.",
+    "Only for graded assignments; for non-graded assignments, students may use AI tools",
+    "For reflection, studying, and ideation. AI should only be used as a study aid, not to generate content for assignments.",
+    "Other:"
+  ];
 
-const processesOptions = [
-"Students must disclose the use of AI in their work, citing the system(s) used.",
-"Students must include an author’s statement describing how AI output was reviewed.",
-"Students must cite all AI outputs following standard citation guidelines (APA/MLA).",
-"Students are responsible for identifying and addressing any inaccurate or biased AI content.",
-];
+  /**
+   * CATEGORY 4: "The following processes are in place regarding students using AI tools"
+   * Also multi-select.
+   */
+  const processesOptions = [
+    "Students should contact the teaching team if they have questions about anything in this policy.",
+    "Students must first talk to me during office hours or by email before using AI tools in this course",
+    "Students are responsible for identifying and addressing any inaccurate, biased, offensive, or problematic AI-generated content that they use or cite.",
+    "Students must check for possible plagiarism in the AI output, check for ideas that should be attributed to particular scholars, and verify any sources cited or generated by AI tools.",
+    "Students must include an author’s statement in their work describing how they identified and addressed any issues such as plagiarism, bias, inaccuracies, and so on in AI-generated content or in AI interactions during the authoring process.",
+    "Students must disclose the use of AI in their work, describing the specific way(s) in which AI was used and citing the system(s) used, dates of use, and where relevant how they were used (such as prompts used) in their documentation.",
+    "Students must cite all AI outputs following either APA or MLA citation guidelines",
+    "Students must include a metacognitive reflection section within their work describing how and why they used AI tools, their impacts on their learning, and how they might use them in the future.",
+    "Students must agree to follow class community agreements about the responsible use of AI.",
+    "Students must get informed consent from relevant parties whenever putting private, sensitive, or copyrighted information into a generative AI tool.",
+    "Students must first demonstrate their AI literacy skills by completing…",
+    "Other:"
+  ];
 
-const rationaleOptions = [
-"I consider learning to use AI tools an important skill in the discipline.",
-"Content in this course is private, so AI tools must be used only with caution.",
-"As AI tools evolve, the teaching team needs more time to adapt the course properly.",
-];
+  /**
+   * CATEGORY 5: "The rationale for this policy is"
+   * This one is tricky because there are multiple sets of bullet points
+   * explaining why these policies might exist. We could combine them
+   * or present multiple sub-categories. 
+   * For simplicity, let’s provide them all as one multi-select or separate radio groups.
+   * But we’ll do simpler approach: the user picks ONE “rationale statement” via radio (or can pick “Other”).
+   */
+  const rationaleOptions = [
+    // "Students are allowed to use AI tools freely as they choose because…"
+    "The students in this course have strong learning skills and have shown themselves to be responsible, effective, self-directed learners.",
+    "I’ve designed robust assessments and learning activities in this course that have value regardless of the use of chatbots.",
+    "The use of chatbots aligns with the goals of the course in a way that enhances learning.",
+    "I consider learning to use AI tools an important skill in the discipline.",
+    "Students are informed about AI, its risks and benefits, and can decide for themselves if and how they would use AI tools.",
+    // "Students are only allowed to use AI tools in limited ways described below because…"
+    "Students need to first develop their AI literacy skills to demonstrate they can use chatbots effectively and responsibly.",
+    "Chatbots would enhance learning in certain specific situations but could be a detriment outside of those situations.",
+    "The teaching team only has enough resources to support students working with chatbots in limited ways.",
+    "Students first need to understand issues around privacy and data security and consent to using a chatbot.",
+    // "Students are not allowed to use AI tools, except when certain conditions are met because…"
+    "It could enhance learning for certain students in unique circumstances but otherwise would likely inhibit learning.",
+    "It depends on the individual student's goals, situation, skills, and needs that need to be evaluated on a case-by-case basis.",
+    "As AI tools rapidly evolve, the teaching team needs more time to adapt the course to properly support students.",
+    "Content in this course is private, sensitive, or copyrighted, and should not be entered into a chatbot.",
+    // "Students are not allowed to use specified AI tools because…"
+    "This course relies on pedagogic strategies that would be significantly undermined by allowing students to use AI tools.",
+    "The course teaches skills that should be first mastered without the use of AI tools as a foundation for future learning.",
+    "The assessments in this course require students to submit completely original work to provide useful feedback and accurately evaluate learning.",
+    "The university and this course currently cannot provide secure and equitable access to the specified AI tools, so it would be unfair if only certain students could afford access.",
+    // Other:
+    "Other:"
+  ];
 
-const consequencesOptions = [
-"If a student is suspected of not following this policy, the matter shall be referred to administration.",
-"Student work lacking required elements (citations, statements, etc.) shall receive a grade penalty.",
-];
+  /**
+   * CATEGORY 6: "The following consequences for non-compliance with this policy apply"
+   * Also a multi-select or single selection. Let’s do single, but you could adapt if desired.
+   */
+  const consequencesOptions = [
+    "If a student is suspected of or reported for not following this policy, cases shall be referred to the Associate Provost or designee, who in consultation with the appropriate School Dean, shall determine which disciplinary sanctions, if any shall be imposed. The sanctions of suspension or dismissal shall not be imposed unless the Provost concurs.",
+    "Student work that does not include the required elements (citations, author’s statement, etc.) shall receive a grade penalty of…"
+  ];
 
-const supportOptions = [
-"AI use is not required and is entirely optional. Equivalent alternatives are provided.",
-"We will go over in class how to access and responsibly use any specified AI tools.",
-];
+  /**
+   * CATEGORY 7: "The following support resources are available"
+   */
+  const supportOptions = [
+    "If you have any questions, please talk to me or someone from the teaching team. The best way to contact us is...",
+    "Students will be able to create a free account for the specified tools using their CalArts email addresses. We will go over in class how to access them.",
+    "AI use is not required and is entirely optional. Equivalent alternatives are provided for all students whether they choose to use AI tools or not."
+  ];
 
-const positionStatements = [
-"If you feel pressure in this course, please reach out instead of resorting to chatbots as a shortcut.",
-"A major goal for this course is for you to develop your creative voice and style. I want you to be critical of AI.",
-"We respect your concerns about privacy; you may opt out of AI usage and request alternative assignments.",
-"Generative AI tools come with a responsibility to verify the accuracy and integrity of AI output.",
-"Thoughtful and responsible use of generative AI applies to everyone, including me as your instructor.",
-];
+  /**
+   * CATEGORY 8: "The following statement expresses our position on supporting students..."
+   * There are multiple statements. We can store them as a multi-select or single-select.
+   * Often these read like a single statement. Let’s do single-select for simplicity.
+   */
+  const positionStatementOptions = [
+    "If you as a student are struggling and feeling too much pressure in this course, please don't resort to chatbots as a shortcut to completing assignments. Many CalArts students feel stressed and pressured. It is completely natural, as this is a challenging course and the university can be a high-pressure environment. But there are a lot of support resources available to you, and I believe that you can succeed here. Please contact me anytime and let's talk about it. I am open to extending due dates or adjusting the assignments to fit your situation. I will work with you to support your success in this course!",
+    "A major goal for this course is for you to develop your creative voice and style. I want to know what you think, not what a chatbot thinks. If you are interested in using AI tools, I want you to be critical of them. These tools can be useful but also have significant shortcomings that are worth examining. Don’t let AI do the thinking for you or settle for generic AI content. It is important in our field to champion human voices and to be critical of how power is structured in society. My door is always open and I welcome you to reach out to me anytime to discuss how you might address AI in your work in this course.",
+    "We recognize that you may have concerns about privacy and security, or have ethical or other reasons why you do not want to use AI tools in this class. This is completely understandable and we respect your choices. I and the teaching team are here to help you succeed in this course. Please email, visit office hours, or speak to me at any time so we can help you. I can accommodate or adapt course assignments for most students' situations. In the instances where I cannot, I can connect you to other campus resources that can help you.",
+    "Generative AI tools can be helpful in our work in this course. But using these powerful tools comes with a lot of responsibility. I trust that you will hold yourselves to the highest standards of professionalism when using AI tools in our course. That means being transparent about using AI and submitting work that has original ideas and holds up the high standards of our university. Also, I trust that you will take responsibility for your interactions with AI. If AI generates something inaccurate, plagiarized, biased, offensive, unethical, or incorrectly attributed, I expect you to identify and address it. This is all to prepare you for future success as an academic scholar. I have so much faith in you! We are a community of learners who support each other, so please contact me anytime to talk about how we use AI tools in this course.",
+    "Fairness and reciprocity between you and me are important to build a positive learning environment for us all. Thoughtful and responsible use of generative AI technology applies to everyone in this course, including me. I commit to following these same practices and policies when it comes to using AI tools for my work as a teacher in this course."
+  ];
 
-const handleRadioChange = (category, value) => {
-setSelections(prev => ({ ...prev, [category]: value }));
-};
+  //////////////////////////////////////////////////////////////////////////////////////////
+  // EVENT HANDLERS
+  //////////////////////////////////////////////////////////////////////////////////////////
 
-const handleCheckboxChange = (category, value) => {
-setSelections(prev => {
-const currentVals = [...prev[category]];
-if (currentVals.includes(value)) {
-return { ...prev, [category]: currentVals.filter(item => item !== value) };
-} else {
-return { ...prev, [category]: [...currentVals, value] };
-}
-});
-};
+  // For radio groups (where only 1 item can be chosen in a category)
+  const handleRadioChange = (category, value) => {
+    setSelections(prev => ({
+      ...prev,
+      [category]: value
+    }));
+  };
 
-const generateParagraph = () => {
-const {
-generalPolicy,
-tools,
-conditions,
-processes,
-rationale,
-consequences,
-support,
-positionStatement
-} = selections;
+  // For checkbox sets (where multiple items can be chosen)
+  const handleCheckboxChange = (category, value) => {
+    setSelections(prev => {
+      const currentValues = [...prev[category]];
+      if (currentValues.includes(value)) {
+        // If already selected, unselect it
+        return {
+          ...prev,
+          [category]: currentValues.filter(item => item !== value)
+        };
+      } else {
+        // If not selected, add it
+        return {
+          ...prev,
+          [category]: [...currentValues, value]
+        };
+      }
+    });
+  };
 
-clojure
-Copy
-const sentences = [];
+  //////////////////////////////////////////////////////////////////////////////////////////
+  // PARAGRAPH GENERATION
+  //////////////////////////////////////////////////////////////////////////////////////////
+  const generateParagraph = () => {
+    const {
+      generalPolicy,
+      appliedTools,
+      conditions,
+      processes,
+      rationale,
+      consequences,
+      support,
+      positionStatement
+    } = selections;
 
-if (generalPolicy) {
-  sentences.push(`General policy about AI use in this course: ${generalPolicy}`);
-}
-if (tools.length > 0) {
-  sentences.push(`This policy specifically applies to: ${tools.join(" ")}`);
-}
-if (conditions.length > 0) {
-  sentences.push(`AI tools may be used under the following conditions: ${conditions.join(" ")}`);
-}
-if (processes.length > 0) {
-  sentences.push(`In addition, the following processes are required: ${processes.join(" ")}`);
-}
-if (rationale) {
-  sentences.push(`Rationale: ${rationale}`);
-}
-if (consequences) {
-  sentences.push(`Consequences for non-compliance: ${consequences}`);
-}
-if (support) {
-  sentences.push(`Support resources: ${support}`);
-}
-if (positionStatement) {
-  sentences.push(`Additional statement: ${positionStatement}`);
-}
+    // We'll combine each chosen set into a cohesive statement. 
+    const lines = [];
 
-return sentences.join(". ") + ".";
-};
+    // 1. General Policy
+    if (generalPolicy) {
+      lines.push(`General policy about AI use in this course: ${generalPolicy}`);
+    }
 
-return (
-<div className="max-w-4xl mx-auto p-4">
-<h1 className="text-2xl font-bold mb-4">
-AI Syllabus Statement Builder (Sample Web App)
-</h1>
-<div className="mb-6">
-<h2 className="font-semibold mb-2">1. General Policy about AI Use</h2>
-{generalPolicyOptions.map((option) => (
-<div key={option} className="flex items-center mb-2">
-<input
-type="radio"
-name="generalPolicy"
-value={option}
-checked={selections.generalPolicy === option}
-onChange={() => handleRadioChange("generalPolicy", option)}
-className="mr-2"
-/>
-<label>{option}</label>
-</div>
-))}
-</div>
-<div className="mb-6">
-<h2 className="font-semibold mb-2">2. The Policy Applies to These AI Tools</h2>
-{toolsOptions.map((option) => (
-<div key={option} className="flex items-center mb-2">
-<input
-type="checkbox"
-value={option}
-checked={selections.tools.includes(option)}
-onChange={() => handleCheckboxChange("tools", option)}
-className="mr-2"
-/>
-<label>{option}</label>
-</div>
-))}
-</div>
-<div className="mb-6">
-<h2 className="font-semibold mb-2">3. Conditions for Using AI Tools</h2>
-{conditionsOptions.map((option) => (
-<div key={option} className="flex items-center mb-2">
-<input
-type="checkbox"
-value={option}
-checked={selections.conditions.includes(option)}
-onChange={() => handleCheckboxChange("conditions", option)}
-className="mr-2"
-/>
-<label>{option}</label>
-</div>
-))}
-</div>
-<div className="mb-6">
-<h2 className="font-semibold mb-2">4. Required Processes for Students</h2>
-{processesOptions.map((option) => (
-<div key={option} className="flex items-center mb-2">
-<input
-type="checkbox"
-value={option}
-checked={selections.processes.includes(option)}
-onChange={() => handleCheckboxChange("processes", option)}
-className="mr-2"
-/>
-<label>{option}</label>
-</div>
-))}
-</div>
-<div className="mb-6">
-<h2 className="font-semibold mb-2">5. Rationale</h2>
-{rationaleOptions.map((option) => (
-<div key={option} className="flex items-center mb-2">
-<input
-type="radio"
-name="rationale"
-value={option}
-checked={selections.rationale === option}
-onChange={() => handleRadioChange("rationale", option)}
-className="mr-2"
-/>
-<label>{option}</label>
-</div>
-))}
-</div>
-<div className="mb-6">
-<h2 className="font-semibold mb-2">6. Consequences for Non-compliance</h2>
-{consequencesOptions.map((option) => (
-<div key={option} className="flex items-center mb-2">
-<input
-type="radio"
-name="consequences"
-value={option}
-checked={selections.consequences === option}
-onChange={() => handleRadioChange("consequences", option)}
-className="mr-2"
-/>
-<label>{option}</label>
-</div>
-))}
-</div>
-<div className="mb-6">
-<h2 className="font-semibold mb-2">7. Support Resources</h2>
-{supportOptions.map((option) => (
-<div key={option} className="flex items-center mb-2">
-<input
-type="radio"
-name="support"
-value={option}
-checked={selections.support === option}
-onChange={() => handleRadioChange("support", option)}
-className="mr-2"
-/>
-<label>{option}</label>
-</div>
-))}
-</div>
-<div className="mb-6">
-<h2 className="font-semibold mb-2">
-8. Additional Position or Supportive Statement
-</h2>
-{positionStatements.map((option) => (
-<div key={option} className="flex items-center mb-2">
-<input
-type="radio"
-name="positionStatement"
-value={option}
-checked={selections.positionStatement === option}
-onChange={() => handleRadioChange("positionStatement", option)}
-className="mr-2"
-/>
-<label>{option}</label>
-</div>
-))}
-</div>
-<div className="mb-6">
-<button
-onClick={() => {}}
-className="py-2 px-4 bg-blue-600 text-white font-semibold rounded shadow mr-3"
->
-Preview Below
-</button>
-</div>
-<div className="p-4 border rounded bg-gray-100">
-<p className="font-semibold">Preview of Your Syllabus Statement:</p>
-<hr className="my-2" />
-<p>{generateParagraph()}</p>
-</div>
-</div>
-);
+    // 2. Tools
+    if (appliedTools.length > 0) {
+      lines.push(
+        `The policy applies to the following AI tools: ${appliedTools.join("; ")}`
+      );
+    }
+
+    // 3. Conditions
+    if (conditions.length > 0) {
+      lines.push(
+        `The policy applies only under the following conditions: ${conditions.join("; ")}`
+      );
+    }
+
+    // 4. Processes
+    if (processes.length > 0) {
+      lines.push(
+        `The following processes are in place regarding students using AI tools: ${processes.join("; ")}`
+      );
+    }
+
+    // 5. Rationale
+    if (rationale) {
+      lines.push(`The rationale for this policy is: ${rationale}`);
+    }
+
+    // 6. Consequences
+    if (consequences) {
+      lines.push(`The following consequences for non-compliance apply: ${consequences}`);
+    }
+
+    // 7. Support
+    if (support) {
+      lines.push(`The following support resources are available: ${support}`);
+    }
+
+    // 8. Position Statement
+    if (positionStatement) {
+      lines.push(`Our position on supporting students: ${positionStatement}`);
+    }
+
+    // Join them into paragraphs or one big paragraph
+    return lines.join(".\n\n") + ".";
+  };
+
+  return (
+    <div className="p-4 max-w-4xl mx-auto">
+      <h1 className="text-2xl font-bold mb-6">AI Policy Syllabus Builder</h1>
+
+      {/* 1. General Policy */}
+      <div className="mb-6">
+        <h2 className="font-semibold mb-2">
+          1. General policy about AI use in this course:
+        </h2>
+        {generalPolicyOptions.map((option) => (
+          <div key={option} className="flex items-center mb-2">
+            <input
+              type="radio"
+              name="generalPolicy"
+              value={option}
+              checked={selections.generalPolicy === option}
+              onChange={() => handleRadioChange("generalPolicy", option)}
+              className="mr-2"
+            />
+            <label>{option}</label>
+          </div>
+        ))}
+      </div>
+
+      {/* 2. Tools */}
+      <div className="mb-6">
+        <h2 className="font-semibold mb-2">
+          2. The policy applies to the following AI tools:
+        </h2>
+        {appliedToolsOptions.map((option) => (
+          <div key={option} className="flex items-center mb-2">
+            <input
+              type="checkbox"
+              value={option}
+              checked={selections.appliedTools.includes(option)}
+              onChange={() => handleCheckboxChange("appliedTools", option)}
+              className="mr-2"
+            />
+            <label>{option}</label>
+          </div>
+        ))}
+      </div>
+
+      {/* 3. Conditions */}
+      <div className="mb-6">
+        <h2 className="font-semibold mb-2">
+          3. The policy applies only under the following conditions:
+        </h2>
+        {conditionsOptions.map((option) => (
+          <div key={option} className="flex items-center mb-2">
+            <input
+              type="checkbox"
+              value={option}
+              checked={selections.conditions.includes(option)}
+              onChange={() => handleCheckboxChange("conditions", option)}
+              className="mr-2"
+            />
+            <label>{option}</label>
+          </div>
+        ))}
+      </div>
+
+      {/* 4. Processes */}
+      <div className="mb-6">
+        <h2 className="font-semibold mb-2">
+          4. The following processes are in place regarding students using AI tools:
+        </h2>
+        {processesOptions.map((option) => (
+          <div key={option} className="flex items-center mb-2">
+            <input
+              type="checkbox"
+              value={option}
+              checked={selections.processes.includes(option)}
+              onChange={() => handleCheckboxChange("processes", option)}
+              className="mr-2"
+            />
+            <label>{option}</label>
+          </div>
+        ))}
+      </div>
+
+      {/* 5. Rationale */}
+      <div className="mb-6">
+        <h2 className="font-semibold mb-2">5. The rationale for this policy is:</h2>
+        {rationaleOptions.map((option) => (
+          <div key={option} className="flex items-center mb-2">
+            <input
+              type="radio"
+              name="rationale"
+              value={option}
+              checked={selections.rationale === option}
+              onChange={() => handleRadioChange("rationale", option)}
+              className="mr-2"
+            />
+            <label>{option}</label>
+          </div>
+        ))}
+      </div>
+
+      {/* 6. Consequences */}
+      <div className="mb-6">
+        <h2 className="font-semibold mb-2">
+          6. The following consequences for non-compliance with this policy apply:
+        </h2>
+        {consequencesOptions.map((option) => (
+          <div key={option} className="flex items-center mb-2">
+            <input
+              type="radio"
+              name="consequences"
+              value={option}
+              checked={selections.consequences === option}
+              onChange={() => handleRadioChange("consequences", option)}
+              className="mr-2"
+            />
+            <label>{option}</label>
+          </div>
+        ))}
+      </div>
+
+      {/* 7. Support */}
+      <div className="mb-6">
+        <h2 className="font-semibold mb-2">
+          7. The following support resources are available:
+        </h2>
+        {supportOptions.map((option) => (
+          <div key={option} className="flex items-center mb-2">
+            <input
+              type="radio"
+              name="support"
+              value={option}
+              checked={selections.support === option}
+              onChange={() => handleRadioChange("support", option)}
+              className="mr-2"
+            />
+            <label>{option}</label>
+          </div>
+        ))}
+      </div>
+
+      {/* 8. Position Statement(s) */}
+      <div className="mb-6">
+        <h2 className="font-semibold mb-2">
+          8. The following statement expresses our position on supporting students:
+        </h2>
+        {positionStatementOptions.map((option) => (
+          <div key={option} className="flex items-center mb-2">
+            <input
+              type="radio"
+              name="positionStatement"
+              value={option}
+              checked={selections.positionStatement === option}
+              onChange={() => handleRadioChange("positionStatement", option)}
+              className="mr-2"
+            />
+            <label>{option}</label>
+          </div>
+        ))}
+      </div>
+
+      {/* Preview */}
+      <div className="mb-6">
+        <button
+          onClick={() => {}}
+          className="py-2 px-4 bg-blue-600 text-white font-semibold rounded shadow mr-3"
+        >
+          Preview Draft Statement
+        </button>
+      </div>
+
+      <div className="p-4 border rounded bg-gray-50">
+        <p className="font-bold mb-2">Draft Syllabus Statement:</p>
+        <pre className="whitespace-pre-wrap">{generateParagraph()}</pre>
+      </div>
+    </div>
+  );
 }
 
 export default AISyllabusStatementBuilder;
